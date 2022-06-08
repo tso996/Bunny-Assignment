@@ -64,7 +64,7 @@ const std::string BunnyColors[] = {"white", "brown", "black", "spotted"};
 class Bunny
 {
     private:
-        std::string name="unknown";
+        std::string name;
         std::string sex;
         std::string color;
         int age;
@@ -96,20 +96,69 @@ class Bunny
              return sex;
          }
 
+         void addAge(){
+             age++;
+         }
+
+         int getAge(){
+             return age;
+         }
+
+         bool isRadioActive(){
+             return radioactive_mutant_vampire_bunny;
+         }
+
 };
 
 int main(){
     srand(time(NULL));
 
     cout<<"Bunny Assignment v0.01"<<endl;
-    list<Bunny> bunnyList;
+    
+    list<Bunny> *bunnyList = new list<Bunny>();
+
     for(int i = 0; i<5; i++){
         Bunny mBunny;
-        bunnyList.push_back(mBunny);
-    }
-
-    for(auto& bunny: bunnyList){
-        cout<<bunny.getName()<<endl;;
+        cout<<mBunny.getName()<<" is born!\n";
+        bunnyList->push_back(mBunny);
+    } 
+    list<Bunny>::iterator it;
+    int turn = 0;
+    int femaleBunnyCount = 0;
+    bool maleBunnyAlive = false;
+    while(true){
+        cout<<"=======================Turn "<<turn<<"===========\n";
+        //update age
+        for(it = bunnyList->begin();it!=bunnyList->end(); ++it){
+            it->addAge();
+            if(it->getAge()>2 && !(it->isRadioActive())){// bunny end
+                cout<<it->getName()<<" has been removed!\n";
+                it = bunnyList->erase(it);  
+               }else{
+                    if(it->isRadioActive() && it->getAge()>50){
+                            cout<<"RadioActive bunny "<<it->getName()<<" has been removed!\n";
+                            it = bunnyList->erase(it);  
+                    }
+                }
+            if (it->getSex()=="Male"){
+                maleBunnyAlive = true;
+            }else{
+                femaleBunnyCount++;
+            }
+        }
+        //adding new bunnies based on female Bunnies
+        if(maleBunnyAlive){
+            for(int i = 0; i< femaleBunnyCount; i++){
+                Bunny mBunny;
+                cout<<mBunny.getName()<<" is born!\n";
+                bunnyList->push_back(mBunny);
+            }
+        }
+        if(bunnyList->size()>2000){
+            cout<<"famine! Quitting..\n";
+            return 0;
+        }
+        turn++;
     }
   
 

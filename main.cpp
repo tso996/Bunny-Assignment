@@ -29,6 +29,7 @@ If the bunny population exceeds 1000 a food shortage must occur killing exactly 
 */
 #include <iostream>
 #include <list>
+#include <fstream>
 
 using namespace std;
 
@@ -84,8 +85,9 @@ class Bunny
 
             age = 0;
 
-            int flag = rand() % 2 + 1;
-            (flag == 1)? radioactive_mutant_vampire_bunny = true: radioactive_mutant_vampire_bunny=false;
+            int flag = rand() % 50 + 1;
+            //cout<<"radio active flag: "<<flag<<endl;
+            (flag == 5)? radioactive_mutant_vampire_bunny = true: radioactive_mutant_vampire_bunny=false;
         }
         ~Bunny()=default;
          string getName(){
@@ -116,46 +118,76 @@ int main(){
     cout<<"Bunny Assignment v0.01"<<endl;
     
     list<Bunny> bunnyList;// = new list<Bunny>();
+    string output;
+    ofstream outputFile("./bunnyRunHistory.txt");
+    outputFile << "";
 
     for(int i = 0; i<5; i++){
         Bunny mBunny;
-        cout<<mBunny.getName()<<" is born!\n";
+        if(mBunny.isRadioActive()){
+             cout<<"Radioactive bunny "<<mBunny.getName()<<" is born!"<<" It's a "<< mBunny.getSex()<<"\n";
+            output = output + "Radioactive bunny "+ mBunny.getName()+" is born!" + " It's a "+mBunny.getSex()+"\n"; 
+        }else{
+            cout<<mBunny.getName()<<" is born!"<<" It's a "<< mBunny.getSex()<<"\n";
+            output = output + mBunny.getName()+" is born!" + " It's a "+mBunny.getSex()+"\n"; 
+        }
         bunnyList.push_back(mBunny);
     } 
     list<Bunny>::iterator it;
-    int turn = 0;
-    int femaleBunnyCount = 0;
-    bool maleBunnyAlive = false;
+    int turn = 1;
+    
     while(true){
+        int femaleBunnyCount = 0;
+        bool maleBunnyAlive = false;
         cout<<"=======================Turn "<<turn<<"===========\n";
+        cout<<"Total number of bunnies alive: "<<bunnyList.size()<<"\n";
+        output = output + "Total number of bunnies alive: " + to_string(bunnyList.size()) +"\n";
+        output = output + "=======================Turn " + to_string(turn) + "===========\n";
         //update age
-        for(it = bunnyList.begin();it!=bunnyList.end(); ++it){
+        for(it = bunnyList.begin();it!=bunnyList.end();){
             it->addAge();
-            if(it->getAge()>5 && !(it->isRadioActive())){// bunny end
+            cout<<"name: "<<it->getName()<<" age: "<<it->getAge()<<"\n";
+            if (it->getSex()=="Male"){
+                maleBunnyAlive = true;
+            }else if(it->getAge()>2){
+                femaleBunnyCount++;
+            }
+            if(it->getAge()>10 && !(it->isRadioActive())){// bunny end
+                cout<<"in here"<<endl;
                 cout<<it->getName()<<" has been removed!\n";
+                output = output + it->getName()+" has been removed!\n";
                 it = bunnyList.erase(it);  
                }else{
                     if(it->isRadioActive() && it->getAge()>50){
                             cout<<"RadioActive bunny "<<it->getName()<<" has been removed!\n";
+                            output = output + "RadioActive bunny "+ it->getName() + " has been removed!\n";
                             it = bunnyList.erase(it);  
+                    }else{
+                        ++it;
                     }
                 }
-            if (it->getSex()=="Male"){
-                maleBunnyAlive = true;
-            }else{
-                femaleBunnyCount++;
-            }
+            
         }
+        cout<<"bringing out the new bunnies==============\n";
         //adding new bunnies based on female Bunnies
         if(maleBunnyAlive){
             for(int i = 0; i< femaleBunnyCount; i++){
                 Bunny mBunny;
-                cout<<mBunny.getName()<<" is born!\n";
+                 if(mBunny.isRadioActive()){
+                        cout<<"Radioactive bunny "<<mBunny.getName()<<" is born!"<<" It's a "<< mBunny.getSex()<<"\n";
+                        output = output + "Radioactive bunny "+ mBunny.getName()+" is born!" + " It's a "+mBunny.getSex()+"\n"; 
+                    }else{
+                        cout<<mBunny.getName()<<" is born!"<<" It's a "<< mBunny.getSex()<<"\n";
+                        output = output + mBunny.getName()+" is born!" + " It's a "+mBunny.getSex()+"\n"; 
+                    }
                 bunnyList.push_back(mBunny);
             }
         }
-        if(bunnyList.size()>2000){
+        if(bunnyList.size()>10000){
             cout<<"famine! Quitting..\n";
+            output = output + "famine! Quitting..\n";
+            outputFile << output;
+            outputFile.close();
             return 0;
         }
         turn++;
